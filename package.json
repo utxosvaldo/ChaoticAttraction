@@ -1,0 +1,19 @@
+{
+  "name": "chaotic-attraction",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "flocc": "^0.5.21",
+    "javascript-color-gradient": "^2.4.4",
+    "three": "^0.149.0"
+  }
+}
