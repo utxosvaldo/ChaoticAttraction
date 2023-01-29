@@ -1,5 +1,5 @@
 import './style.css';
-import * as THREE from 'three';
+import { Group, SphereGeometry, MeshBasicMaterial, Mesh, BufferGeometry, BufferAttribute, LineBasicMaterial, Line } from 'three';
 import { Agent, Environment } from 'flocc';
 import { setUpParameters } from './setupFunctions';
 import { threeSetUp, resizeRendererToDisplaySize } from './setUpThreeJS';
@@ -51,19 +51,15 @@ const generateAttractor = () => {
   /**
    * Attractor Group
    */
-  attractorGroup = new THREE.Group();
+  attractorGroup = new Group();
 
   // Add Equilibrium points
-  const pGeo = new THREE.SphereGeometry({
-    radius: 3,
-    widthSegments: 64,
-    heightSegments: 32
-  });
+  const pGeo = new SphereGeometry(3, 64, 32);
 
-  const p1Mat = new THREE.MeshBasicMaterial({
+  const p1Mat = new MeshBasicMaterial({
     color: parameters.color1
   });
-  const p1Mesh = new THREE.Mesh(pGeo, p1Mat);
+  const p1Mesh = new Mesh(pGeo, p1Mat);
   p1Mesh.position.set(
     parameters.point1.x,
     parameters.point1.y,
@@ -71,10 +67,10 @@ const generateAttractor = () => {
   );
   attractorGroup.add(p1Mesh);
 
-  const p2Mat = new THREE.MeshBasicMaterial({
+  const p2Mat = new MeshBasicMaterial({
     color: parameters.color2
   });
-  const p2Mesh = new THREE.Mesh(pGeo, p2Mat);
+  const p2Mesh = new Mesh(pGeo, p2Mat);
   p2Mesh.position.set(
     parameters.point2.x,
     parameters.point2.y,
@@ -83,11 +79,11 @@ const generateAttractor = () => {
   attractorGroup.add(p2Mesh);
 
   // add flying particles
-  var color;
   for (let i = 0; i < parameters.agentCount; i++) {
-    // get random color from color array
-    color = parameters.getColor();
-    createAgent(environment, attractorGroup, color);
+    let { agent, agentMesh, agentTraceLine } = createAgent(parameters);
+    attractorGroup.add(agentMesh);
+    attractorGroup.add(agentTraceLine);
+    environment.addAgent(agent);
   }
   scene.add(attractorGroup);
 };
@@ -108,41 +104,40 @@ const repositionAttractor = () => {
   environment.time = 0;
 }
 
-function createAgent(environment, group, color) {
-  const traceGeo = new THREE.BufferGeometry();
+function createAgent(parameters) {
+  let color = parameters.getColor();
+  const traceGeo = new BufferGeometry();
   const positions = new Float32Array(parameters.maxPoints * 3);
   let drawCount = 0;
-  traceGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  traceGeo.setAttribute('position', new BufferAttribute(positions, 3));
   traceGeo.setDrawRange(0, drawCount);
-  const traceMaterial = new THREE.LineBasicMaterial({
+  const traceMaterial = new LineBasicMaterial({
     transparent: true,
     opacity: 0.5,
     color,
     linewidth: 1
   });
-  const traceLine = new THREE.Line(traceGeo, traceMaterial);
-  traceLine.frustumCulled = false;
-  group.add(traceLine);
+  const agentTraceLine = new Line(traceGeo, traceMaterial);
+  agentTraceLine.frustumCulled = false;
 
   const agent = new Agent();
   agent.set({ tick: tick_agent });
 
-  const agentGeo = new THREE.SphereGeometry(parameters.radius);
-  const agentMat = new THREE.MeshBasicMaterial({ color });
-  const agentMesh = new THREE.Mesh(agentGeo, agentMat);
+  const agentGeo = new SphereGeometry(parameters.radius);
+  const agentMat = new MeshBasicMaterial({ color });
+  const agentMesh = new Mesh(agentGeo, agentMat);
 
   const p_init = parameters.getPoint(color);
 
   agentMesh.position.set(p_init[0], p_init[1], p_init[2]);
   agent.set('position', agentMesh.position);
-  agent.set('traceLine', traceLine);
+  agent.set('traceLine', agentTraceLine);
   agent.set('color', color)
   agent.get('x', () => agent.get('position').x);
   agent.get('y', () => agent.get('position').y);
   agent.get('z', () => agent.get('position').z);
 
-  environment.addAgent(agent);
-  group.add(agentMesh);
+  return { agent, agentMesh, agentTraceLine }
 }
 
 
