@@ -105,7 +105,19 @@ const repositionAttractor = () => {
 }
 
 function createAgent(parameters) {
-  let color = parameters.getColor();
+  // Get agent color
+  const color = parameters.getColor();
+
+  // Get agent initial position
+  const p_init = parameters.getPoint(color);
+
+  // Create agent Sphere mesh
+  const agentGeo = new SphereGeometry(parameters.radius);
+  const agentMat = new MeshBasicMaterial({ color });
+  const agentMesh = new Mesh(agentGeo, agentMat);
+  agentMesh.position.set(p_init[0], p_init[1], p_init[2]);
+
+  // Create agent traceline
   const traceGeo = new BufferGeometry();
   const positions = new Float32Array(parameters.maxPoints * 3);
   let drawCount = 0;
@@ -113,23 +125,16 @@ function createAgent(parameters) {
   traceGeo.setDrawRange(0, drawCount);
   const traceMaterial = new LineBasicMaterial({
     transparent: true,
-    opacity: 0.5,
-    color,
-    linewidth: 1
+    opacity: 0.35,
+    color
   });
+
   const agentTraceLine = new Line(traceGeo, traceMaterial);
   agentTraceLine.frustumCulled = false;
 
+  // Create agent
   const agent = new Agent();
   agent.set({ tick: tick_agent });
-
-  const agentGeo = new SphereGeometry(parameters.radius);
-  const agentMat = new MeshBasicMaterial({ color });
-  const agentMesh = new Mesh(agentGeo, agentMat);
-
-  const p_init = parameters.getPoint(color);
-
-  agentMesh.position.set(p_init[0], p_init[1], p_init[2]);
   agent.set('position', agentMesh.position);
   agent.set('traceLine', agentTraceLine);
   agent.set('color', color)
