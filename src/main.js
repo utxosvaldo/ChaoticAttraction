@@ -1,5 +1,5 @@
 import './style.css';
-import { Group, SphereGeometry, MeshBasicMaterial, Mesh, BufferGeometry, BufferAttribute, LineBasicMaterial, Line } from 'three';
+import { Group, SphereGeometry, MeshBasicMaterial, Mesh, BufferGeometry, BufferAttribute, LineBasicMaterial, Line, Clock } from 'three';
 import { Agent, Environment } from 'flocc';
 import { setUpParameters } from './setupFunctions';
 import { threeSetUp, resizeRendererToDisplaySize } from './setUpThreeJS';
@@ -176,24 +176,33 @@ function tick_agent(agent) {
  * Animate
  */
 
+let clock = new Clock();
+let delta = 0;
+// 30 fps
+let interval = 1 / 30;
+
 const tick = () => {
-  if (resizeRendererToDisplaySize(renderer)) {
-    const canvas = renderer.domElement;
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    camera.updateProjectionMatrix();
-  }
-
-  // update attractor by ticking the environment
-  environment.tick({ activation: 'uniform', count: 1, randomizeOrder: false });
-
-  // Update controls
-  controls.update();
-
-  // Render
-  renderer.render(scene, camera);
-
-  // Call tick again on the next frame
   window.requestAnimationFrame(tick);
+  delta += clock.getDelta();
+
+  if (delta >= interval) {
+    if (resizeRendererToDisplaySize(renderer)) {
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    }
+
+    // update attractor by ticking the environment
+    environment.tick({ activation: 'uniform', count: 1, randomizeOrder: false });
+
+    // Update controls
+    controls.update();
+
+    // Render
+    renderer.render(scene, camera);
+
+    delta = delta % interval;
+  }
 };
 
 generateAttractor();
