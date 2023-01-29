@@ -7,6 +7,7 @@ import data from './attractor.json'
 
 // Attractor parameters
 var parameters = setUpParameters(data);
+console.log(parameters);
 
 // /**
 //  * Agent setup
@@ -14,7 +15,7 @@ var parameters = setUpParameters(data);
 let attractorGroup = null;
 let environment = null;
 
-// Add Canvas
+// Get Canvas and add event listener for double tap
 const canvas = document.querySelector('canvas.webgl');
 
 // setup double tap to regenerate
@@ -26,7 +27,8 @@ function doubleTap(event) {
     console.log('DoubleTap')
     event.preventDefault();
     parameters = setUpParameters(data);
-    repositionAttractor();
+    console.log(parameters);
+    repositionAgents(environment, parameters);
   }
 
   myLatestTap = new Date().getTime();
@@ -39,12 +41,6 @@ var { scene, camera, controls, renderer } = threeSetUp(parameters, canvas);
 
 
 const generateAttractor = () => {
-  // Destroy old attractor
-  if (attractorGroup !== null) {
-    attractorGroup.clear();
-    environment.clear();
-    scene.remove(attractorGroup);
-  }
 
   environment = new Environment();
 
@@ -88,7 +84,7 @@ const generateAttractor = () => {
   scene.add(attractorGroup);
 };
 
-const repositionAttractor = () => {
+const repositionAgents = (environment, parameters) => {
 
   // Get agents
   let agentArray = environment.getAgents()
@@ -144,7 +140,6 @@ function createAgent(parameters) {
 
   return { agent, agentMesh, agentTraceLine }
 }
-
 
 function tick_agent(agent) {
   const { x, y, z } = agent.get('position');
