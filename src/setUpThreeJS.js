@@ -1,14 +1,14 @@
-import * as THREE from 'three';
+import { Scene, Color, PerspectiveCamera, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export function threeSetUp(parameters, canvas) {
   // Scene
-  var scene = new THREE.Scene();
-  scene.background = new THREE.Color(parameters.background);
+  var scene = new Scene();
+  scene.background = new Color(parameters.background);
 
   // Camera
   // Base camera
-  const camera = new THREE.PerspectiveCamera(
+  const camera = new PerspectiveCamera(
     75,
     2, // the canvas default
     0.001,
@@ -17,7 +17,7 @@ export function threeSetUp(parameters, canvas) {
   camera.position.x = 0;
   camera.position.y = 0;
   camera.position.z = parameters.zP * 2.3;
-  camera.lookAt(new THREE.Vector3(0, 0, parameters.zP));
+  camera.lookAt(new Vector3(0, 0, parameters.zP));
   scene.add(camera);
 
   // Controls
@@ -27,7 +27,7 @@ export function threeSetUp(parameters, canvas) {
   controls.enableDamping = true;
 
   // Renderer
-  const renderer = new THREE.WebGLRenderer({
+  const renderer = new WebGLRenderer({
     canvas: canvas
   });
 

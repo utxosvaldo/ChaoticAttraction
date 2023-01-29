@@ -5,21 +5,6 @@ import {
   randomOriginRing
 } from './randomGenerator';
 
-// export function getIdFromQueryString() {
-//   var GET = {};
-//   var query = window.location.search.substring(1).split('&');
-//   for (var i = 0, max = query.length; i < max; i++) {
-//     if (query[i] === '')
-//       // check for trailing & with no param
-//       continue;
-
-//     var param = query[i].split('=');
-//     GET[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || '');
-//   }
-//   document.title = 'Chaotic Attraction #' + GET.id;
-//   return GET.id;
-// }
-
 function rotateVectorXYPlane(v, theta) {
   // Rotates the vector in the XY plane by theta radians
   let cosTheta = Math.cos(theta);
@@ -56,14 +41,7 @@ const backgroundMapping = {
 };
 
 export function setUpParameters(data) {
-  // Get id
-  // let id = data.id //getIdFromQueryString();
-  // Get parameters for corresponding attractor
-  // let attractorParams = dataJson['attractors'][id];
-  // Get Gradient information
-  // let allGradients = dataJson['nToGradientColors'];
-  // let nGradient = attractorParams['g'];
-  let gradientColors = data["gc"]; //allGradients[nGradient];
+  let gradientColors = data["gc"];
   let gradientStep = data["pc"];
   let gradientArray = new Gradient()
     .setColorGradient(...gradientColors)
@@ -72,14 +50,9 @@ export function setUpParameters(data) {
   let particleMultiplier = data['pm'];
   let totalParticles = gradientStep * particleMultiplier;
 
-  // console.log(gradientStep);
-
-  // console.log(gradientArray);
-
   // Create parameters object
   var parameters = {
     id: data.id,
-    // gradient: nGradient,
     gradientArray: gradientArray,
     gradientStep: gradientStep,
     particleColorArray: gradientArray.slice(1, gradientArray.length - 1),
@@ -99,7 +72,6 @@ export function setUpParameters(data) {
     axes: false,
     init: initialConditionsMapping[data['ic']]
   };
-  // console.log(parameters);
 
   parameters = setUpMainPoints(parameters);
   parameters = setUpInitialConditions(parameters);
@@ -109,11 +81,6 @@ export function setUpParameters(data) {
 }
 
 function setUpInitialConditions(parameters) {
-  // let initialConditionsMapping = dataJson['nToInitialConditions'];
-
-  // Set up initial conditions
-  // let nInit = dataJson['attractors'][parameters.id]['ic'];
-  // let init = initialConditionsMapping[nInit];
   let init = parameters.init
   if (init == 'Random') {
     let initConditionsArray = Object.keys(initialConditionsMapping).map(

@@ -15,26 +15,24 @@ let attractorGroup = null;
 let environment = null;
 
 // Add Canvas
-document.title = 'Chaotic Attraction #' + parameters.id;
-// document.body.innerHTML += '<canvas class="webgl"></canvas>';
 const canvas = document.querySelector('canvas.webgl');
 
 // setup double tap to regenerate
-var mylatesttap;
-function doubletap(event) {
+var myLatestTap;
+function doubleTap(event) {
   var now = new Date().getTime();
-  var timesince = now - mylatesttap;
-  if (timesince < 500 && timesince > 0) {
+  var timeSince = now - myLatestTap;
+  if (timeSince < 500 && timeSince > 0) {
     console.log('DoubleTap')
     event.preventDefault();
     parameters = setUpParameters(data);
     repositionAttractor();
   }
 
-  mylatesttap = new Date().getTime();
+  myLatestTap = new Date().getTime();
 }
 
-canvas.addEventListener('click', doubletap);
+canvas.addEventListener('click', doubleTap);
 
 // Set up ThreeJS components
 var { scene, camera, controls, renderer } = threeSetUp(parameters, canvas);
@@ -54,13 +52,13 @@ const generateAttractor = () => {
    * Attractor Group
    */
   attractorGroup = new THREE.Group();
-  // if (parameters.axes) {
-  //   const axesHelper = new THREE.AxesHelper(50);
-  //   attractorGroup.add(axesHelper);
-  // }
 
   // Add Equilibrium points
-  const pGeo = new THREE.SphereGeometry(3);
+  const pGeo = new THREE.SphereGeometry({
+    radius: 3,
+    widthSegments: 64,
+    heightSegments: 32
+  });
 
   const p1Mat = new THREE.MeshBasicMaterial({
     color: parameters.color1
@@ -71,7 +69,6 @@ const generateAttractor = () => {
     parameters.point1.y,
     parameters.point1.z
   );
-
   attractorGroup.add(p1Mesh);
 
   const p2Mat = new THREE.MeshBasicMaterial({
@@ -83,7 +80,6 @@ const generateAttractor = () => {
     parameters.point2.y,
     parameters.point2.z
   );
-
   attractorGroup.add(p2Mesh);
 
   // add flying particles
@@ -105,9 +101,8 @@ const repositionAttractor = () => {
   agentArray.forEach(agent => {
     let color = agent.get('color');
     let pInit = parameters.getPoint(color)
-    // console.log(pInit)
     agent.get('position').set(pInit[0], pInit[1], pInit[2]);
-    }
+  }
   );
 
   environment.time = 0;
@@ -150,15 +145,8 @@ function createAgent(environment, group, color) {
   group.add(agentMesh);
 }
 
-// function repositionAgent(agent){
-//   let color = agent.get('color')
-
-// }
 
 function tick_agent(agent) {
-
-  // agent = repositionAgent(agent);
-
   const { x, y, z } = agent.get('position');
   const { traceLine } = agent.getData();
   const positions = traceLine.geometry.attributes.position.array;
@@ -207,9 +195,6 @@ const tick = () => {
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
 };
-
-
-
 
 generateAttractor();
 tick();
