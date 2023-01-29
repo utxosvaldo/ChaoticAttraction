@@ -200,6 +200,7 @@ const tick = () => {
 
     // Render
     renderer.render(scene, camera);
+    // console.log(`${(1 / delta).toFixed(1)} FPS`);
 
     delta = delta % interval;
   }
