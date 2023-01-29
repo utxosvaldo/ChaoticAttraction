@@ -95,13 +95,6 @@ function setUpInitialConditions(parameters) {
     let randomInit = initArray[Math.floor(Math.random() * initArray.length)];
     init = randomInit;
   }
-  // parameters.init = init;
-
-  let nColors = parameters.particleColorArray.length;
-
-  // parameters.getColor = () => {
-  //   return parameters.particleColorArray[Math.floor(Math.random() * nColors)];
-  // };
 
   // get next color. we want the same number of particles for each color
   let i = 0;
@@ -116,7 +109,7 @@ function setUpInitialConditions(parameters) {
     // We need a random Radius for the cloud of points
     let radius_scale = 100;
     let rCloud = Math.random() * radius_scale;
-    parameters.getPoint = () => {
+    parameters.getInitialPosition = () => {
       return randomAroundPoint([0, 0, parameters.zP], rCloud);
     };
   } else if (init == 'Single') {
@@ -124,7 +117,7 @@ function setUpInitialConditions(parameters) {
     let scale = 40;
     let delta_scale = 0.5;
     let singleP = randomPointAroundAttractor(parameters, scale);
-    parameters.getPoint = () => {
+    parameters.getInitialPosition = () => {
       return randomAroundPoint(singleP, delta_scale);
     };
   } else if (init == 'Fusion') {
@@ -136,17 +129,8 @@ function setUpInitialConditions(parameters) {
       colorPointMapping[color] = randomPointAroundAttractor(parameters, scale);
     });
 
-    // // get next color. different from all other initial conditions. we want the same number of particles for each color
-    // let i = 0;
-    // let nextColor = null;
-    // parameters.getColor = () => {
-    //   nextColor = parameters.particleColorArray[i % parameters.gradientStep];
-    //   i++;
-    //   return nextColor;
-    // };
-
     // get point around initial point for that color.
-    parameters.getPoint = color => {
+    parameters.getInitialPosition = color => {
       let p = colorPointMapping[color];
       return randomAroundPoint(p, delta_scale);
     };
@@ -167,18 +151,9 @@ function setUpInitialConditions(parameters) {
       n++;
     });
 
-    // // get next color. we want the same number of particles for each color
-    // let i = 0;
-    // let nextColor = null;
-    // parameters.getColor = () => {
-    //   nextColor = parameters.particleColorArray[i % parameters.gradientStep];
-    //   i++;
-    //   return nextColor;
-    // };
-
     // get point along the color arm of the star
     let j = 0;
-    parameters.getPoint = color => {
+    parameters.getInitialPosition = color => {
       // get point of star of corresponding color in unit circle
       let pn = colorPointMapping[color];
       // get scale to multiply vector
@@ -190,14 +165,14 @@ function setUpInitialConditions(parameters) {
   } else if (init == 'Ring') {
     let scale = 100;
     let r = scale * Math.random();
-    parameters.getPoint = () => {
+    parameters.getInitialPosition = () => {
       return randomOriginRing(r);
     };
   } else if (init == 'Origin') {
     let r = 3;
     let delta_scale = r / 2.0;
     let p = randomOriginRing(r);
-    parameters.getPoint = () => {
+    parameters.getInitialPosition = () => {
       return randomAroundPoint(p, delta_scale);
     };
   } else if (init == 'Plane') {
@@ -207,7 +182,7 @@ function setUpInitialConditions(parameters) {
     // console.log(xScale, yScale, zScale);
 
     let z = zScale * (3 * Math.random() - 1);
-    parameters.getPoint = () => {
+    parameters.getInitialPosition = () => {
       let p = [
         xScale * (2 * Math.random() - 1),
         yScale * (2 * Math.random() - 1),

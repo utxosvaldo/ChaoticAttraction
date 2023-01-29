@@ -7,7 +7,6 @@ import data from './attractor.json'
 
 // Attractor parameters
 var parameters = setUpParameters(data);
-console.log(parameters);
 
 // /**
 //  * Agent setup
@@ -27,7 +26,6 @@ function doubleTap(event) {
     console.log('DoubleTap')
     event.preventDefault();
     parameters = setUpParameters(data);
-    console.log(parameters);
     repositionAgents(environment, parameters);
   }
 
@@ -92,7 +90,7 @@ const repositionAgents = (environment, parameters) => {
   // Reposition Agents
   agentArray.forEach(agent => {
     let color = agent.get('color');
-    let pInit = parameters.getPoint(color)
+    let pInit = parameters.getInitialPosition(color)
     agent.get('position').set(pInit[0], pInit[1], pInit[2]);
   }
   );
@@ -105,7 +103,7 @@ function createAgent(parameters) {
   const color = parameters.getColor();
 
   // Get agent initial position
-  const p_init = parameters.getPoint(color);
+  const p_init = parameters.getInitialPosition(color);
 
   // Create agent Sphere mesh
   const agentGeo = new SphereGeometry(parameters.radius);
