@@ -17,25 +17,6 @@ function rotateVectorXYPlane(v, theta) {
   ];
 }
 
-const initialConditionsMapping = {
-  "1": "Cloud", "2": "Single", "3": "Fusion", "4": "Ring", "5": "Origin", "6": "Plane", "7": "Lines", "8": "Random"
-}
-
-const integrationStepMapping = {
-  0: 0.001,
-  1: 0.005
-};
-
-const integrationMethodMapping = {
-  0: 'Euler',
-  1: 'Runge-Kutta'
-};
-
-
-const backgroundMapping = {
-  0: 0x000000,
-  1: 0xeeeeee
-};
 
 const seed2SubstringInt = (seed, interval) => {
   let seedSubstring = seed.substring(interval[0], interval[1]);
@@ -74,8 +55,6 @@ const seed2Particle = (seed) => {
   seedInt = seed2SubstringInt(seed, [11, 13]);
   const particleSize = sizeCandidates[seedInt % sizeCandidates.length];
 
-  console.log(particleMultiplier, particleTail, particleSize)
-
   return { particleMultiplier, particleTail, particleSize }
 }
 
@@ -88,6 +67,40 @@ const seed2Background = (seed) => {
   const background = backgroundCandidates[seedInt % backgroundCandidates.length];
 
   return background
+}
+
+const seed2Integrator = (seed) => {
+  // Define candidate values for time step
+  let dtCandidates = [0.001, 0.005];
+
+  // Extract a substring from seed and convert to integer for multiplier
+  let seedInt = seed2SubstringInt(seed, [14, 15]);
+  const dt = dtCandidates[seedInt % dtCandidates.length];
+
+  // Define candidate values for integrator
+  let integratorCandidates = ['Euler', 'Runge-Kutta'];
+
+  // Extract a substring from seed and convert to integer for multiplier
+  seedInt = seed2SubstringInt(seed, [15, 16]);
+  const integrator = integratorCandidates[seedInt % integratorCandidates.length];
+
+  return { dt, integrator }
+}
+
+const seed2InitialConditions = (seed) => {
+  // Define candidate values for background
+  let initialConditionsCandidates = ["Cloud", "Single", "Fusion", "Ring", "Origin", "Plane", "Lines", "Random"];
+
+  // Extract a substring from seed and convert to integer for multiplier
+  let seedInt = seed2SubstringInt(seed, [16, 18]);
+  const initialConditions = initialConditionsCandidates[seedInt % initialConditionsCandidates.length];
+
+  let initialConditionsArray = initialConditionsCandidates.slice(
+    0,
+    initialConditionsCandidates.length - 1
+  );
+
+  return { initialConditions, initialConditionsArray }
 }
 
 export function setUpParameters(data, seed) {
@@ -108,6 +121,12 @@ export function setUpParameters(data, seed) {
   // Set up background
   let background = seed2Background(seed);
 
+  // Set up integration
+  let { dt, integrator } = seed2Integrator(seed);
+
+  // Set up initial conditions
+  let { initialConditions, initialConditionsArray } = seed2InitialConditions(seed);
+
   // Create parameters object
   var parameters = {
     id: data.id,
@@ -120,13 +139,14 @@ export function setUpParameters(data, seed) {
     particleTail: particleTail,
     particleSize: particleSize,
     totalParticles: totalParticles,
-    dt: integrationStepMapping[data['is']],
-    integrator: integrationMethodMapping[data['im']],
+    dt: dt,
+    integrator: integrator,
     sigma: data['s'],
     rho: data['r'],
     zP: data['r'] - 1,
     beta: data['b'],
-    init: initialConditionsMapping[data['ic']],
+    initialConditions: initialConditions,
+    initialConditionsArray: initialConditionsArray
   };
 
   parameters = setUpEquilibriumPoints(parameters);
@@ -137,19 +157,10 @@ export function setUpParameters(data, seed) {
 }
 
 function setUpInitialConditions(parameters) {
-  let init = parameters.init
-  if (init == 'Random') {
-    let initConditionsArray = Object.keys(initialConditionsMapping).map(
-      function (key) {
-        return initialConditionsMapping[key];
-      }
-    );
-    let initArray = initConditionsArray.slice(
-      0,
-      initConditionsArray.length - 1
-    );
-    let randomInit = initArray[Math.floor(Math.random() * initArray.length)];
-    init = randomInit;
+  let initialConditions = parameters.initialConditions
+  if (initialConditions == 'Random') {
+    let randomInit = parameters.initialConditionsArray[Math.floor(Math.random() * parameters.initialConditionsArray.length)];
+    initialConditions = randomInit;
   }
 
   // get next color. we want the same number of particles for each color
@@ -161,14 +172,14 @@ function setUpInitialConditions(parameters) {
     return nextColor;
   };
 
-  if (init == 'Cloud') {
+  if (initialConditions == 'Cloud') {
     // We need a random Radius for the cloud of points
     let radius_scale = 100;
     let rCloud = Math.random() * radius_scale;
     parameters.getInitialPosition = () => {
       return randomAroundPoint([0, 0, parameters.zP], rCloud);
     };
-  } else if (init == 'Single') {
+  } else if (initialConditions == 'Single') {
     // We need a random point in space around attractor middle point
     let scale = 40;
     let delta_scale = 0.5;
@@ -176,7 +187,7 @@ function setUpInitialConditions(parameters) {
     parameters.getInitialPosition = () => {
       return randomAroundPoint(singleP, delta_scale);
     };
-  } else if (init == 'Fusion') {
+  } else if (initialConditions == 'Fusion') {
     // We need [gradient_step] points in space ans asociate each to one of the gradientArray
     let scale = 40;
     let delta_scale = 0.5;
@@ -190,7 +201,7 @@ function setUpInitialConditions(parameters) {
       let p = colorPointMapping[color];
       return randomAroundPoint(p, delta_scale);
     };
-  } else if (init == 'Lines') {
+  } else if (initialConditions == 'Lines') {
     let scale = 100;
     let l = scale * Math.random();
     let d = l / parameters.particleMultiplier;
@@ -218,20 +229,20 @@ function setUpInitialConditions(parameters) {
       j++;
       return p;
     };
-  } else if (init == 'Ring') {
+  } else if (initialConditions == 'Ring') {
     let scale = 100;
     let r = scale * Math.random();
     parameters.getInitialPosition = () => {
       return randomOriginRing(r);
     };
-  } else if (init == 'Origin') {
+  } else if (initialConditions == 'Origin') {
     let r = 3;
     let delta_scale = r / 2.0;
     let p = randomOriginRing(r);
     parameters.getInitialPosition = () => {
       return randomAroundPoint(p, delta_scale);
     };
-  } else if (init == 'Plane') {
+  } else if (initialConditions == 'Plane') {
     let zScale = parameters.zP * 0.8;
     let xScale = parameters.point1.x * 2;
     let yScale = parameters.point1.y * 2;
