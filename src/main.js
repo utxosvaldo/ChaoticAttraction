@@ -1,12 +1,14 @@
 import './style.css';
 import { Group, SphereGeometry, MeshBasicMaterial, Mesh, BufferGeometry, BufferAttribute, LineBasicMaterial, Line, Clock } from 'three';
 import { Agent, Environment } from 'flocc';
-import { setUpParameters } from './setupFunctions';
+import { setUpParameters } from './setUpFromHash';
 import { threeSetUp, resizeRendererToDisplaySize } from './setUpThreeJS';
 import data from './attractor.json'
 
+let seed = "0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+
 // Attractor parameters
-var parameters = setUpParameters(data);
+var parameters = setUpParameters(data, seed);
 
 // /**
 //  * Agent setup
@@ -25,7 +27,7 @@ function doubleTap(event) {
   if (timeSince < 500 && timeSince > 0) {
     console.log('DoubleTap')
     event.preventDefault();
-    parameters = setUpParameters(data);
+    parameters = setUpParameters(data, seed);
     repositionAgents(environment, parameters);
   }
 
@@ -73,7 +75,7 @@ const generateAttractor = () => {
   attractorGroup.add(p2Mesh);
 
   // add flying particles
-  for (let i = 0; i < parameters.agentCount; i++) {
+  for (let i = 0; i < parameters.totalParticles; i++) {
     let { agent, agentMesh, agentTraceLine } = createAgent(parameters);
     attractorGroup.add(agentMesh);
     attractorGroup.add(agentTraceLine);
@@ -106,20 +108,20 @@ function createAgent(parameters) {
   const p_init = parameters.getInitialPosition(color);
 
   // Create agent Sphere mesh
-  const agentGeo = new SphereGeometry(parameters.radius);
+  const agentGeo = new SphereGeometry(parameters.particleSize);
   const agentMat = new MeshBasicMaterial({ color });
   const agentMesh = new Mesh(agentGeo, agentMat);
   agentMesh.position.set(p_init[0], p_init[1], p_init[2]);
 
   // Create agent traceline
   const traceGeo = new BufferGeometry();
-  const positions = new Float32Array(parameters.maxPoints * 3);
+  const positions = new Float32Array(parameters.particleTail * 3);
   let drawCount = 0;
   traceGeo.setAttribute('position', new BufferAttribute(positions, 3));
   traceGeo.setDrawRange(0, drawCount);
   const traceMaterial = new LineBasicMaterial({
     transparent: true,
-    opacity: 0.35,
+    opacity: 0.5,
     color
   });
 
@@ -144,7 +146,7 @@ function tick_agent(agent) {
   const { traceLine } = agent.getData();
   const positions = traceLine.geometry.attributes.position.array;
   const l = positions.length;
-  if (environment.time < parameters.maxPoints) {
+  if (environment.time < parameters.particleTail) {
     positions[3 * environment.time] = x;
     positions[3 * environment.time + 1] = y;
     positions[3 * environment.time + 2] = z;
