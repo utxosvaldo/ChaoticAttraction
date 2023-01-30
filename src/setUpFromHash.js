@@ -100,11 +100,9 @@ export function setUpParameters(data, seed) {
     gradientStep: gradientStep,
     particleColorArray: gradientArray.slice(1, gradientArray.length - 1),
     particleMultiplier: particleMultiplier,
-    color1: gradientArray[0],
-    color2: gradientArray[gradientArray.length - 1],
     particleTail: particleTail,
-    totalParticles: totalParticles,
     particleSize: particleSize,
+    totalParticles: totalParticles,
     dt: integrationStepMapping[data['is']],
     integrator: integrationMethodMapping[data['im']],
     sigma: data['s'],
@@ -113,10 +111,10 @@ export function setUpParameters(data, seed) {
     beta: data['b'],
     background: backgroundMapping[data['bg']],
     axes: false,
-    init: initialConditionsMapping[data['ic']]
+    init: initialConditionsMapping[data['ic']],
   };
 
-  parameters = setUpMainPoints(parameters);
+  parameters = setUpEquilibriumPoints(parameters);
   parameters = setUpInitialConditions(parameters);
   parameters = setUpIntegration(parameters);
 
@@ -238,16 +236,18 @@ function setUpInitialConditions(parameters) {
   return parameters;
 }
 
-function setUpMainPoints(parameters) {
+function setUpEquilibriumPoints(parameters) {
   parameters.point1 = {
     x: Math.sqrt(parameters.beta * (parameters.rho - 1)),
     y: Math.sqrt(parameters.beta * (parameters.rho - 1)),
-    z: parameters.rho - 1
+    z: parameters.rho - 1,
+    color: parameters.gradientArray[0]
   };
   parameters.point2 = {
     x: -Math.sqrt(parameters.beta * (parameters.rho - 1)),
     y: -Math.sqrt(parameters.beta * (parameters.rho - 1)),
-    z: parameters.rho - 1
+    z: parameters.rho - 1,
+    color: parameters.gradientArray[parameters.gradientArray.length - 1]
   };
 
   return parameters;

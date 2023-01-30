@@ -5,7 +5,7 @@ import { setUpParameters } from './setUpFromHash';
 import { threeSetUp, resizeRendererToDisplaySize } from './setUpThreeJS';
 import data from './attractor.json'
 
-let seed = "0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+let seed = "0xd301fcd0b7c84c879456eb041af246fbc7edbfea54f6470a859d8bd4073a47b8";
 
 // Attractor parameters
 var parameters = setUpParameters(data, seed);
@@ -53,7 +53,7 @@ const generateAttractor = () => {
   const pGeo = new SphereGeometry(3, 64, 32);
 
   const p1Mat = new MeshBasicMaterial({
-    color: parameters.color1
+    color: parameters.point1.color
   });
   const p1Mesh = new Mesh(pGeo, p1Mat);
   p1Mesh.position.set(
@@ -64,7 +64,7 @@ const generateAttractor = () => {
   attractorGroup.add(p1Mesh);
 
   const p2Mat = new MeshBasicMaterial({
-    color: parameters.color2
+    color: parameters.point2.color
   });
   const p2Mesh = new Mesh(pGeo, p2Mat);
   p2Mesh.position.set(
