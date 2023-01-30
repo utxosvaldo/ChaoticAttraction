@@ -79,6 +79,17 @@ const seed2Particle = (seed) => {
   return { particleMultiplier, particleTail, particleSize }
 }
 
+const seed2Background = (seed) => {
+  // Define candidate values for background
+  let backgroundCandidates = [0x000000, 0xeeeeee];
+
+  // Extract a substring from seed and convert to integer for multiplier
+  let seedInt = seed2SubstringInt(seed, [13, 14]);
+  const background = backgroundCandidates[seedInt % backgroundCandidates.length];
+
+  return background
+}
+
 export function setUpParameters(data, seed) {
 
   // Set up gradient parameters
@@ -92,9 +103,13 @@ export function setUpParameters(data, seed) {
   let { particleMultiplier, particleTail, particleSize } = seed2Particle(seed);
   let totalParticles = gradientStep * particleMultiplier;
 
+  // Set up background
+  let background = seed2Background(seed);
+
   // Create parameters object
   var parameters = {
     id: data.id,
+    background: background,
     gradientName: gradientName,
     gradientArray: gradientArray,
     gradientStep: gradientStep,
@@ -109,7 +124,6 @@ export function setUpParameters(data, seed) {
     rho: data['r'],
     zP: data['r'] - 1,
     beta: data['b'],
-    background: backgroundMapping[data['bg']],
     init: initialConditionsMapping[data['ic']],
   };
 
