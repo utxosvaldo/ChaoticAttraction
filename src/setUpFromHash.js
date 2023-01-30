@@ -98,6 +98,8 @@ export function setUpParameters(data, seed) {
     .setColorGradient(...gradientColors)
     .setMidpoint(gradientStep + 2) // Add 2 more to account for the 2 equilibrium points, their color should not be repeated.
     .getColors();
+  // Create array of available colors for flying particles. First and last color are reserved to equilibrium points.
+  let particleColorArray = gradientArray.slice(1, gradientArray.length - 1);
 
   // Set up particle parameters and calculate total particles
   let { particleMultiplier, particleTail, particleSize } = seed2Particle(seed);
@@ -113,7 +115,7 @@ export function setUpParameters(data, seed) {
     gradientName: gradientName,
     gradientArray: gradientArray,
     gradientStep: gradientStep,
-    particleColorArray: gradientArray.slice(1, gradientArray.length - 1),
+    particleColorArray: particleColorArray,
     particleMultiplier: particleMultiplier,
     particleTail: particleTail,
     particleSize: particleSize,
