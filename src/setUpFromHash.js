@@ -110,7 +110,6 @@ export function setUpParameters(data, seed) {
     zP: data['r'] - 1,
     beta: data['b'],
     background: backgroundMapping[data['bg']],
-    axes: false,
     init: initialConditionsMapping[data['ic']],
   };
 
