@@ -1,5 +1,6 @@
 import Gradient from 'javascript-color-gradient';
 import gradientList from './gradients.json';
+import equationParameters from './equationParameters.json'
 import {
   randomAroundPoint,
   randomPointAroundAttractor,
@@ -43,7 +44,7 @@ const seed2Gradient = (seed) => {
 
 const seed2Particle = (seed) => {
   // Define candidate values for particle multiplier, tail and size
-  let multiplierCandidates = [1, 10, 100];
+  let multiplierCandidates = [10, 100];
   let tailCandidates = [10, 100, 1000, 10000];
   let sizeCandidates = [0.1, 1];
 
@@ -103,6 +104,23 @@ const seed2InitialConditions = (seed) => {
   return { initialConditions, initialConditionsArray }
 }
 
+const seed2SigmaRhoBeta = (seed) => {
+  // Define candidate values for background
+  let parametersCandidates = equationParameters;
+
+  // Extract a substring from seed and convert to integer for multiplier
+  let seedInt = seed2SubstringInt(seed, [18, 22]);
+  let parameters = parametersCandidates[seedInt % parametersCandidates.length];
+
+  const sigma = parameters.s;
+  const rho = parameters.r;
+  const beta = parameters.b
+
+  return { sigma, rho, beta }
+}
+
+
+
 export function setUpParameters(data, seed) {
 
   // Set up gradient parameters
@@ -127,6 +145,9 @@ export function setUpParameters(data, seed) {
   // Set up initial conditions
   let { initialConditions, initialConditionsArray } = seed2InitialConditions(seed);
 
+  // Set up equation parameters
+  let { sigma, rho, beta } = seed2SigmaRhoBeta(seed);
+
   // Create parameters object
   var parameters = {
     id: data.id,
@@ -141,10 +162,10 @@ export function setUpParameters(data, seed) {
     totalParticles: totalParticles,
     dt: dt,
     integrator: integrator,
-    sigma: data['s'],
-    rho: data['r'],
-    zP: data['r'] - 1,
-    beta: data['b'],
+    sigma: sigma,
+    rho: rho,
+    beta: beta,
+    zP: rho - 1,
     initialConditions: initialConditions,
     initialConditionsArray: initialConditionsArray
   };

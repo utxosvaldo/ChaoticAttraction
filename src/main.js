@@ -5,7 +5,7 @@ import { setUpParameters } from './setUpFromHash';
 import { threeSetUp, resizeRendererToDisplaySize } from './setUpThreeJS';
 import data from './attractor.json'
 
-let seed = "0xf71035c968066dc6b2e20568ea0a5bda13681d76bea81261566a5ece088ef119";
+let seed = "6bf92a1154b94de2e2d3f95ca674faa3b680340f90290aa39d1bb444ad1e11c5";
 
 // Attractor parameters
 var parameters = setUpParameters(data, seed);
